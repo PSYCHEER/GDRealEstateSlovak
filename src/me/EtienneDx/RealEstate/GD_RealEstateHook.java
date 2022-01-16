@@ -15,9 +15,9 @@ import com.griefdefender.api.event.RemoveClaimEvent;
 
 import me.EtienneDx.RealEstate.Transactions.BoughtTransaction;
 import me.EtienneDx.RealEstate.Transactions.Transaction;
-import net.kyori.adventure.text.Component;
-import net.kyori.event.EventBus;
-import net.kyori.event.EventSubscriber;
+import com.griefdefender.lib.kyori.adventure.text.Component;
+import com.griefdefender.lib.kyori.event.EventBus;
+import com.griefdefender.lib.kyori.event.EventSubscriber;
 
 public class GD_RealEstateHook
 {
