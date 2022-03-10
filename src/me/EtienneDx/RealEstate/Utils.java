@@ -1,7 +1,6 @@
 package me.EtienneDx.RealEstate;
 
 import java.time.Duration;
-import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -14,7 +13,6 @@ import com.griefdefender.api.claim.ClaimResult;
 import com.griefdefender.api.claim.TrustTypes;
 import com.griefdefender.api.data.PlayerData;
 
-import net.md_5.bungee.api.ChatColor;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 public class Utils
@@ -27,13 +25,11 @@ public class Utils
     	{
     		if(b.isOnline() && msgBuyer)
     		{
-    			((Player)b).sendMessage(RealEstate.instance.config.chatPrefix + ChatColor.RED + 
-    					"You don't have enough money to make this transaction!");
+				Messages.sendMessage(b.getPlayer(), RealEstate.instance.messages.msgErrorNoMoneySelf);
     		}
     		if(s != null && s.isOnline() && msgSeller)
     		{
-    			((Player)s).sendMessage(RealEstate.instance.config.chatPrefix + ChatColor.RED + 
-    					b.getName() + " doesn't have enough money to make this transaction!");
+				Messages.sendMessage(s.getPlayer(), RealEstate.instance.messages.msgErrorNoMoneyOther, b.getName());
     		}
     		return false;
     	}
@@ -42,13 +38,11 @@ public class Utils
     	{
     		if(b.isOnline() && msgBuyer)
     		{
-    			((Player)b).sendMessage(RealEstate.instance.config.chatPrefix + ChatColor.RED + 
-    					"Could not withdraw the money!");
+				Messages.sendMessage(b.getPlayer(), RealEstate.instance.messages.msgErrorNoWithdrawSelf);
     		}
     		if(s != null && s.isOnline() && msgSeller)
     		{
-    			((Player)s).sendMessage(RealEstate.instance.config.chatPrefix + ChatColor.RED + 
-    					"Could not withdraw the money!");
+				Messages.sendMessage(b.getPlayer(), RealEstate.instance.messages.msgErrorNoWithdrawOther);
     		}
     		return false;
     	}
@@ -59,13 +53,11 @@ public class Utils
     		{
     			if(b.isOnline() && msgBuyer)
         		{
-        			((Player)b).sendMessage(RealEstate.instance.config.chatPrefix + ChatColor.RED + 
-        					"Could not deposit to " + s.getName() + ", refunding Player!");
+					Messages.sendMessage(b.getPlayer(), RealEstate.instance.messages.msgErrorNoDepositOther, s.getName());
         		}
         		if(s != null && s.isOnline() && msgSeller)
         		{
-        			((Player)s).sendMessage(RealEstate.instance.config.chatPrefix + ChatColor.RED + 
-        					"Could not deposit to you, refunding" + b.getName() + "!");
+					Messages.sendMessage(b.getPlayer(), RealEstate.instance.messages.msgErrorNoDepositSelf, b.getName());
         		}
         		RealEstate.econ.depositPlayer(b, amount);
         		return false;
