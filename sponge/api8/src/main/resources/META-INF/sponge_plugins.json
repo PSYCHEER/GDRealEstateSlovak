@@ -1,0 +1,35 @@
+{
+    "loader": {
+        "name": "java_plain",
+        "version": "1.0"
+    },
+    "license": "MIT",
+    "global": {
+        "version": "1.4.0",
+        "links": {
+            "homepage": "https://www.spongepowered.org",
+            "source": "https://www.spongepowered.org/source",
+            "issues": "https://www.spongepowered.org/issues"
+        },
+        "contributors": [
+            {
+                "name": "SpongePowered",
+                "description": "Lead Developer"
+            }
+        ],
+        "dependencies": [
+            {
+                "id": "spongeapi",
+                "version": "8.0.0"
+            }
+        ]
+    },
+    "plugins": [
+        {
+            "id": "realestate",
+            "name": "RealEstate",
+            "entrypoint": "me.EtienneDx.RealEstate.RealEstate",
+            "description": "Provide players with an ability to sell and rent claims to other players."
+        }
+    ]
+}
