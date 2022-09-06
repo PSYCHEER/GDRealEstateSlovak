@@ -154,6 +154,7 @@ artifacts {
 
 shadowJar {
     classifier = ""
+    relocate("co.aikar.locales", "me.EtienneDx.RealEstate.acf")
     relocate("co.aikar.commands", "me.EtienneDx.RealEstate.acf")
     relocate("me.EtienneDx.AnnotationConfig", "me.EtienneDx.RealEstate.AnnotationConfig")
 

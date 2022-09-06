@@ -299,6 +299,7 @@ public class RealEstate extends JavaPlugin
 		if(getServer().getPluginManager().getPlugin("GriefPrevention") != null)
 		{
 			claimAPI = new GriefPreventionAPI();
+			claimAPI.registerEvents();
 			return true;
 		}
 		return false;
@@ -309,6 +310,7 @@ public class RealEstate extends JavaPlugin
 		if(getServer().getPluginManager().getPlugin("GriefDefender") != null)
 		{
 			claimAPI = new GriefDefenderAPI();
+			claimAPI.registerEvents();
 			return true;
 		}
 		return false;

@@ -2,21 +2,26 @@ package me.EtienneDx.RealEstate.ClaimAPI.GriefDefender;
 
 import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.User;
-import com.griefdefender.api.claim.TrustTypes;
+import com.griefdefender.api.claim.Claim;
+import com.griefdefender.api.claim.TrustResult;
+import com.griefdefender.api.claim.TrustResultTypes;
+import com.griefdefender.api.data.PlayerData;
 import com.griefdefender.api.event.ChangeClaimEvent;
 import com.griefdefender.api.event.Event;
 import com.griefdefender.api.event.ProcessTrustUserEvent;
+import com.griefdefender.api.event.QueryPermissionEvent;
 import com.griefdefender.api.event.RemoveClaimEvent;
-import com.griefdefender.lib.kyori.adventure.text.Component;
-import com.griefdefender.lib.kyori.event.EventBus;
-import com.griefdefender.lib.kyori.event.EventSubscriber;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
-import me.EtienneDx.RealEstate.ClaimEvents;
-import me.EtienneDx.RealEstate.ClaimAPI.ClaimPermission;
+import me.EtienneDx.RealEstate.RealEstate;
+import me.EtienneDx.RealEstate.Transactions.BoughtTransaction;
+import me.EtienneDx.RealEstate.Transactions.Transaction;
+import com.griefdefender.lib.kyori.adventure.text.Component;
+import com.griefdefender.lib.kyori.event.EventBus;
+import com.griefdefender.lib.kyori.event.EventSubscriber;
 
 public class GDPermissionListener
 {
@@ -25,6 +30,7 @@ public class GDPermissionListener
         new ProcessTrustUserEventListener();
         new ChangeClaimEventListener();
         new RemoveClaimEventListener();
+        new QueryPermissionEventListener();
     }
 
     private class ProcessTrustUserEventListener {
@@ -37,6 +43,7 @@ public class GDPermissionListener
                 @Override
                 public void on(@NonNull ProcessTrustUserEvent event) throws Throwable {
                     final User user = event.getUser();
+                    final Claim claim = event.getClaim();
                     if (user == null) {
                         return;
                     }
@@ -44,27 +51,52 @@ public class GDPermissionListener
                     if (player == null) {
                         return;
                     }
-                    ClaimPermission permission = null;
-                    if(event.getTrustType().equals(TrustTypes.ACCESSOR)) {
-                        permission = ClaimPermission.ACCESS;
+                    Transaction b = RealEstate.transactionsStore.getTransaction(new GDClaim(claim));
+                    if(b != null && player.getUniqueId().equals(b.getOwner()) && b instanceof BoughtTransaction)
+                    {
+                        if(((BoughtTransaction)b).getBuyer() != null) {
+                            final String identifier = claim.getFriendlyIdentifier() != null ? claim.getFriendlyIdentifier() : claim.getDisplayName() != null ? claim.getDisplayName() : claim.getType().getName().toLowerCase();
+                            event.setMessage(Component.text("This claim '" + identifier + "' is currently involved in a transaction, you can't access it!"));
+                            final TrustResult trustResult = TrustResult.builder().user(event.getUser()).claims(event.getClaims()).trust(event.getTrustType()).type(TrustResultTypes.NOT_TRUSTED).build();
+                            event.setNewTrustResult(trustResult);
+                        }
                     }
-                    else if(event.getTrustType().equals(TrustTypes.BUILDER)) {
-                        permission = ClaimPermission.BUILD;
+                }
+            });
+        }
+    }
+
+    private class QueryPermissionEventListener {
+
+        public QueryPermissionEventListener() {
+            final EventBus<Event> eventBus = GriefDefender.getEventManager().getBus();
+
+            eventBus.subscribe(QueryPermissionEvent.class, new EventSubscriber<QueryPermissionEvent>() {
+
+                @Override
+                public void on(@NonNull QueryPermissionEvent event) throws Throwable {
+                    final User user = event.getCause().first(User.class).orElse(null);
+                    if (user == null) {
+                        return;
                     }
-                    else if(event.getTrustType().equals(TrustTypes.CONTAINER)) {
-                        permission = ClaimPermission.CONTAINER;
+                    final Player player = Bukkit.getPlayer(user.getUniqueId());
+                    if (player == null || event.getLocation() == null) {
+                        return;
                     }
-                    else if(event.getTrustType().equals(TrustTypes.MANAGER)) {
-                        permission = ClaimPermission.MANAGE;
+                    final Claim claim = GriefDefender.getCore().getClaimAt(event.getLocation());
+                    if (claim == null || claim.isWilderness()) {
+                        return;
                     }
-                    String denialReason = ClaimEvents.onClaimPermission(
-                        new GDClaim(event.getClaim()),
-                        player,
-                        permission
-                    );
-                    if (denialReason != null) {
-                        event.setMessage(Component.text(denialReason));
-                        event.cancelled(true);
+
+                    if (event.getPermission().contains("block") || event.getPermission().contains("item")) {
+                        final Transaction b = RealEstate.transactionsStore.getTransaction(new GDClaim(claim));
+                        if(b != null && player.getUniqueId().equals(b.getOwner()) && b instanceof BoughtTransaction) {
+                            if(((BoughtTransaction)b).getBuyer() != null) {
+                                final String identifier = claim.getFriendlyIdentifier() != null ? claim.getFriendlyIdentifier() : claim.getDisplayName() != null ? claim.getDisplayName() : claim.getType().getName().toLowerCase();
+                                event.setMessage(Component.text("This claim '" + identifier + "' is currently involved in a transaction, you can't resize it!"));
+                                event.cancelled(true);
+                            }
+                        }
                     }
                 }
             });
@@ -88,17 +120,32 @@ public class GDPermissionListener
                     if (player == null) {
                         return;
                     }
-                    String denialReason = ClaimEvents.onClaimPermission(
-                        new GDClaim(event.getClaim()),
-                        player,
-                        ClaimPermission.EDIT
-                    );
-                    if (denialReason != null) {
-                        event.setMessage(Component.text(denialReason));
-                        event.cancelled(true);
+                    for (Claim claim : event.getClaims()) {
+                        if (!canChangeClaim(event, player, claim)) {
+                            return;
+                        }
+                        for (Claim child : claim.getChildren(true)) {
+                            if (!canChangeClaim(event, player, child)) {
+                                return;
+                            }
+                        }
                     }
                 }
             });
+        }
+
+        private boolean canChangeClaim(ChangeClaimEvent event, Player player, Claim claim) {
+            Transaction b = RealEstate.transactionsStore.getTransaction(new GDClaim(claim));
+            if(b != null && b instanceof BoughtTransaction)
+            {
+                if(((BoughtTransaction)b).getBuyer() != null) {
+                    final String identifier = claim.getFriendlyIdentifier() != null ? claim.getFriendlyIdentifier() : claim.getDisplayName() != null ? claim.getDisplayName() : claim.getType().getName().toLowerCase();
+                    event.setMessage(Component.text("This claim '" + identifier + "' is currently involved in a transaction, you can't resize it!"));
+                    event.cancelled(true);
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -119,17 +166,37 @@ public class GDPermissionListener
                     if (player == null) {
                         return;
                     }
-                    String denialReason = ClaimEvents.onClaimPermission(
-                        new GDClaim(event.getClaim()),
-                        player,
-                        ClaimPermission.EDIT
-                    );
-                    if (denialReason != null) {
-                        event.setMessage(Component.text(denialReason));
-                        event.cancelled(true);
+                    final PlayerData playerData = GriefDefender.getCore().getPlayerData(player.getWorld().getUID(), player.getUniqueId());
+                    if (playerData.canIgnoreClaim(event.getClaim())) {
+                        return;
+                    }
+
+                    for (Claim claim : event.getClaims()) {
+                        if (!canRemoveClaim(event, player, claim)) {
+                            return;
+                        }
+                        for (Claim child : claim.getChildren(true)) {
+                            if (!canRemoveClaim(event, player, child)) {
+                                return;
+                            }
+                        }
                     }
                 }
             });
+        }
+
+        private boolean canRemoveClaim(RemoveClaimEvent event, Player player, Claim claim) {
+            final Transaction b = RealEstate.transactionsStore.getTransaction(new GDClaim(claim));
+            if(b != null && b instanceof BoughtTransaction)
+            {
+                if(((BoughtTransaction)b).getBuyer() != null) {
+                    final String identifier = claim.getFriendlyIdentifier() != null ? claim.getFriendlyIdentifier() : claim.getDisplayName() != null ? claim.getDisplayName() : claim.getType().getName().toLowerCase();
+                    event.setMessage(Component.text("The claim '" + identifier + "' is currently involved in a transaction, you can't remove it!"));
+                    event.cancelled(true);
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
