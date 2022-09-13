@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -123,10 +124,10 @@ public class RealEstate extends JavaPlugin
         this.config.loadConfig();// loads config or default
         this.config.saveConfig();// save eventual default
 
-		this.messages = new Messages();
-		this.messages.loadConfig();// loads customizable messages or defaults
-		this.messages.saveConfig();// save eventual default
-		this.log.info("Customizable messages loaded.");
+	this.messages = new Messages();
+	this.messages.loadConfig();// loads customizable messages or defaults
+	this.messages.saveConfig();// save eventual default
+	this.log.info("Customizable messages loaded.");
 
         ConfigurationSerialization.registerClass(ClaimSell.class);
         ConfigurationSerialization.registerClass(ClaimRent.class);
@@ -142,7 +143,21 @@ public class RealEstate extends JavaPlugin
         registerConditions();
         manager.registerCommand(new RECommand());
 
-		copyResourcesIntoPluginDirectory();
+	copyResourcesIntoPluginDirectory();
+
+		// Handle postworld tasks
+		Bukkit.getScheduler().scheduleSyncDelayedTask(RealEstate.instance, new Runnable(){
+			public void run(){
+				RealEstate.instance.onPostWorld();
+			}
+		});
+	}
+
+	private void onPostWorld() {
+		if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+			new PlaceholderProvider();
+			this.log.info("PlaceholderAPI provider enabled!");
+		}
 	}
 
     private void registerConditions()
