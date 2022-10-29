@@ -48,7 +48,7 @@ public class ClaimSell extends ClaimTransaction
 		    Sign s = Utils.getSign(sign);
 		    final List<Component> signData = new ArrayList<>(Collections.nCopies(4, Component.empty()));
 			signData.add(0, LegacyHexSerializer.deserialize(Messages.getMessage(RealEstate.instance.config.cfgSignsHeader, false)));
-			signData.add(1, LegacyHexSerializer.deserialize(NamedTextColor.DARK_GREEN + RealEstate.instance.config.cfgReplaceSell));
+			signData.add(1, LegacyHexSerializer.deserialize(Messages.getMessage(RealEstate.instance.config.cfgReplaceSell, false)));
 			signData.add(2, LegacyHexSerializer.deserialize(owner != null ? Utils.getSignString(Utils.getOfflinePlayer(owner).name()) : "SERVER"));
 			if(RealEstate.instance.config.cfgUseCurrencySymbol)
 			{

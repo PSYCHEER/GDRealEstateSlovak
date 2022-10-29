@@ -76,7 +76,7 @@ public class REListener implements Listener
 			// empty is considered a wish to sell
 			if(RealEstate.instance.config.cfgSellKeywords.contains(event.getLine(0).toLowerCase()))
 			{
-				if(!RealEstate.instance.config.cfgEnableSell)
+				if(!RealEstate.instance.config.cfgEnableSell || (claim.isAdminClaim() && !RealEstate.instance.config.allowAdminClaims) || (claim.isTownClaim() && !RealEstate.instance.config.allowTownClaims))
 				{
 					Messages.sendMessage(player, RealEstate.instance.messages.msgErrorSignSellingDisabled);
 					event.setCancelled(true);
@@ -148,7 +148,7 @@ public class REListener implements Listener
 			else if(RealEstate.instance.config.cfgRentKeywords.contains(event.getLine(0).toLowerCase()) ||
 					RealEstate.instance.config.cfgContainerRentKeywords.contains(event.getLine(0).toLowerCase()))// we want to rent it
 			{
-				if(!RealEstate.instance.config.cfgEnableRent)
+				if(!RealEstate.instance.config.cfgEnableRent || (claim.isAdminClaim() && !RealEstate.instance.config.allowAdminClaims) || (claim.isTownClaim() && !RealEstate.instance.config.allowTownClaims))
 				{
 					Messages.sendMessage(player, RealEstate.instance.messages.msgErrorSignRentingDisabled);
 					event.setCancelled(true);
@@ -235,7 +235,7 @@ public class REListener implements Listener
 			}
 			else if(RealEstate.instance.config.cfgLeaseKeywords.contains(event.getLine(0).toLowerCase()))// we want to rent it
 			{
-				if(!RealEstate.instance.config.cfgEnableLease)
+				if(!RealEstate.instance.config.cfgEnableLease || (claim.isAdminClaim() && !RealEstate.instance.config.allowAdminClaims) || (claim.isTownClaim() && !RealEstate.instance.config.allowTownClaims))
 				{
 					Messages.sendMessage(player, RealEstate.instance.messages.msgErrorSignLeasingDisabled);
 					event.setCancelled(true);

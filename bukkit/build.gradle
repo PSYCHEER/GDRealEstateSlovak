@@ -24,8 +24,8 @@ ext.buildNumber = System.env.BUILD_NUMBER ?: '0'
 
 defaultTasks 'clean', 'build'
 
-sourceCompatibility = '1.16'
-targetCompatibility = '1.16'
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
 
 archivesBaseName = 'realestate-bukkit'
 

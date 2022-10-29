@@ -41,6 +41,7 @@ public class GD_RealEstateHook
                 @Override
                 public void on(@NonNull ProcessTrustUserEvent event) throws Throwable {
                     final User user = event.getUser();
+                    final Claim claim = event.getClaim();
                     if (user == null) {
                         return;
                     }
@@ -48,11 +49,12 @@ public class GD_RealEstateHook
                     if (player == null) {
                         return;
                     }
-                    Transaction b = RealEstate.transactionsStore.getTransaction(event.getClaim());
+                    Transaction b = RealEstate.transactionsStore.getTransaction(claim);
                     if(b != null && player.getUniqueId().equals(b.getOwner()) && b instanceof BoughtTransaction)
                     {
                         if(((BoughtTransaction)b).getBuyer() != null) {
-                            event.setMessage(Component.text("This claim is currently involved in a transaction, you can't access it!"));
+                            final String identifier = claim.getFriendlyIdentifier() != null ? claim.getFriendlyIdentifier() : claim.getDisplayName() != null ? claim.getDisplayName() : claim.getType().getName().toLowerCase();
+                            event.setMessage(Component.text("This claim '" + identifier + "' is currently involved in a transaction, you can't access it!"));
                             final TrustResult trustResult = TrustResult.builder().user(event.getUser()).claims(event.getClaims()).trust(event.getTrustType()).type(TrustResultTypes.NOT_TRUSTED).build();
                             event.setNewTrustResult(trustResult);
                         }
@@ -88,7 +90,8 @@ public class GD_RealEstateHook
                         final Transaction b = RealEstate.transactionsStore.getTransaction(claim);
                         if(b != null && player.getUniqueId().equals(b.getOwner()) && b instanceof BoughtTransaction) {
                             if(((BoughtTransaction)b).getBuyer() != null) {
-                                event.setMessage(Component.text("This claim is currently involved in a transaction, you can't resize it!"));
+                                final String identifier = claim.getFriendlyIdentifier() != null ? claim.getFriendlyIdentifier() : claim.getDisplayName() != null ? claim.getDisplayName() : claim.getType().getName().toLowerCase();
+                                event.setMessage(Component.text("This claim '" + identifier + "' is currently involved in a transaction, you can't resize it!"));
                                 event.cancelled(true);
                             }
                         }
@@ -115,16 +118,32 @@ public class GD_RealEstateHook
                     if (player == null) {
                         return;
                     }
-                    Transaction b = RealEstate.transactionsStore.getTransaction(event.getClaim());
-                    if(b != null && player.getUniqueId().equals(b.getOwner()) && b instanceof BoughtTransaction)
-                    {
-                        if(((BoughtTransaction)b).getBuyer() != null) {
-                            event.setMessage(Component.text("This claim is currently involved in a transaction, you can't resize it!"));
-                            event.cancelled(true);
+                    for (Claim claim : event.getClaims()) {
+                        if (!canChangeClaim(event, player, claim)) {
+                            return;
+                        }
+                        for (Claim child : claim.getChildren(true)) {
+                            if (!canChangeClaim(event, player, child)) {
+                                return;
+                            }
                         }
                     }
                 }
             });
+        }
+
+        private boolean canChangeClaim(ChangeClaimEvent event, Player player, Claim claim) {
+            Transaction b = RealEstate.transactionsStore.getTransaction(claim);
+            if(b != null && b instanceof BoughtTransaction)
+            {
+                if(((BoughtTransaction)b).getBuyer() != null) {
+                    final String identifier = claim.getFriendlyIdentifier() != null ? claim.getFriendlyIdentifier() : claim.getDisplayName() != null ? claim.getDisplayName() : claim.getType().getName().toLowerCase();
+                    event.setMessage(Component.text("This claim '" + identifier + "' is currently involved in a transaction, you can't resize it!"));
+                    event.cancelled(true);
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
@@ -149,16 +168,33 @@ public class GD_RealEstateHook
                     if (playerData.canIgnoreClaim(event.getClaim())) {
                         return;
                     }
-                    Transaction b = RealEstate.transactionsStore.getTransaction(event.getClaim());
-                    if(b != null && player.getUniqueId().equals(b.getOwner()) && b instanceof BoughtTransaction)
-                    {
-                        if(((BoughtTransaction)b).getBuyer() != null) {
-                            event.setMessage(Component.text("This claim is currently involved in a transaction, you can't remove it!"));
-                            event.cancelled(true);
+
+                    for (Claim claim : event.getClaims()) {
+                        if (!canRemoveClaim(event, player, claim)) {
+                            return;
+                        }
+                        for (Claim child : claim.getChildren(true)) {
+                            if (!canRemoveClaim(event, player, child)) {
+                                return;
+                            }
                         }
                     }
                 }
             });
+        }
+
+        private boolean canRemoveClaim(RemoveClaimEvent event, Player player, Claim claim) {
+            final Transaction b = RealEstate.transactionsStore.getTransaction(claim);
+            if(b != null && b instanceof BoughtTransaction)
+            {
+                if(((BoughtTransaction)b).getBuyer() != null) {
+                    final String identifier = claim.getFriendlyIdentifier() != null ? claim.getFriendlyIdentifier() : claim.getDisplayName() != null ? claim.getDisplayName() : claim.getType().getName().toLowerCase();
+                    event.setMessage(Component.text("The claim '" + identifier + "' is currently involved in a transaction, you can't remove it!"));
+                    event.cancelled(true);
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }

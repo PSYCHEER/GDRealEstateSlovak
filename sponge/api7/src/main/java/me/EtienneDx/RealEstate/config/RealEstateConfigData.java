@@ -33,7 +33,6 @@ import org.spongepowered.configurate.objectmapping.meta.Comment;
 import org.spongepowered.configurate.objectmapping.meta.Setting;
 
 import me.EtienneDx.RealEstate.RealEstate;
-import com.griefdefender.lib.kyori.adventure.text.format.NamedTextColor;
 
 @ConfigSerializable
 public class RealEstateConfigData {
@@ -64,19 +63,19 @@ public class RealEstateConfigData {
 
     @Setting("Keywords.Replace.Sell")
     @Comment("What is displayed on signs for preoperties to sell")
-    public String cfgReplaceSell = "FOR SALE";
+    public String cfgReplaceSell = "$2FOR SALE";
     @Setting("Keywords.Replace.Rent")
     @Comment("What is displayed on signs for preoperties to rent")
-    public String cfgReplaceRent = "FOR RENT";
+    public String cfgReplaceRent = "$2FOR RENT";
     @Setting("Keywords.Replace.Lease")
     @Comment("What is displayed on signs for preoperties to lease")
-    public String cfgReplaceLease = "FOR LEASE";
+    public String cfgReplaceLease = "$2FOR LEASE";
     @Setting("Keywords.Replace.Ongoing.Rent")
     @Comment("What is displayed on the first line of the sign once someone rents a claim.")
-    public String cfgReplaceOngoingRent = "[Rented]";
+    public String cfgReplaceOngoingRent = "$6[Rented]";
     @Setting("Keywords.Replace.ContainerRent")
     @Comment("What is displayed on the third line of the sign when renting container access only.")
-    public String cfgContainerRentLine = NamedTextColor.BLUE + "Containers only";
+    public String cfgContainerRentLine = "$9Containers only";
 
     @Setting("Rules.Sell")
     @Comment("Is selling claims enabled?")
@@ -157,6 +156,14 @@ public class RealEstateConfigData {
     @Setting("Settings.MessagesFiles")
     @Comment("Language file to be used. You can see all languages files in the languages directory. If the language file does not exist, it will be created and you'll be able to modify it later on.")
     public String languageFile = "en.yml";
+
+    @Setting("Settings.AllowAdminClaims")
+    @Comment("Allow admin claims to be used by RealEstate.")
+    public boolean allowAdminClaims = false;
+
+    @Setting("Settings.AllowTownClaims")
+    @Comment("Allow town claims to be used by RealEstate.")
+    public boolean allowTownClaims = false;
 
     @Setting("Settings.CurrencyNamePlural")
     @Comment("The currency name plural used in economy.")

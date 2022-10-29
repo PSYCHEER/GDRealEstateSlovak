@@ -21,7 +21,6 @@ import me.EtienneDx.RealEstate.Utils;
 import me.EtienneDx.RealEstate.Events.ClaimLeaseEvent;
 import me.EtienneDx.RealEstate.config.LegacyHexSerializer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.entity.Sign;
 import org.spongepowered.api.data.Keys;
@@ -65,7 +64,7 @@ public class ClaimLease extends BoughtTransaction
 				Sign s = Utils.getSign(sign);
 				final List<Component> signData = new ArrayList<>(Collections.nCopies(4, Component.empty()));
 				signData.add(0, LegacyHexSerializer.deserialize(Messages.getMessage(RealEstate.instance.config.cfgSignsHeader, false)));
-				signData.add(1, LegacyHexSerializer.deserialize(NamedTextColor.DARK_GREEN + RealEstate.instance.config.cfgReplaceLease));
+				signData.add(1, LegacyHexSerializer.deserialize(Messages.getMessage(RealEstate.instance.config.cfgReplaceLease, false)));
 				if(RealEstate.instance.config.cfgUseCurrencySymbol)
 				{
 					if(RealEstate.instance.config.cfgUseDecimalCurrency == false)

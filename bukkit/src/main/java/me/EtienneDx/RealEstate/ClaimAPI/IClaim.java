@@ -20,6 +20,8 @@ public interface IClaim
 
     public boolean isAdminClaim();
 
+    public boolean isTownClaim();
+
     public Iterable<IClaim> getChildren();
 
     public boolean isWilderness();

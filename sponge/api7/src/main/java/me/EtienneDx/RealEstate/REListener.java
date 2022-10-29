@@ -90,7 +90,7 @@ public class REListener
 			// empty is considered a wish to sell
 			if(RealEstate.instance.config.cfgSellKeywords.contains(header.toLowerCase()))
 			{
-				if(!RealEstate.instance.config.cfgEnableSell)
+				if(!RealEstate.instance.config.cfgEnableSell || (claim.isAdminClaim() && !RealEstate.instance.config.allowAdminClaims) || (claim.isTown() && !RealEstate.instance.config.allowTownClaims))
 				{
 					Messages.sendMessage(player, RealEstate.instance.messages.msgErrorSignSellingDisabled);
 					event.setCancelled(true);
@@ -163,7 +163,7 @@ public class REListener
 			else if(RealEstate.instance.config.cfgRentKeywords.contains(header.toLowerCase()) ||
 					RealEstate.instance.config.cfgContainerRentKeywords.contains(header.toLowerCase()))// we want to rent it
 			{
-				if(!RealEstate.instance.config.cfgEnableRent)
+				if(!RealEstate.instance.config.cfgEnableRent || (claim.isAdminClaim() && !RealEstate.instance.config.allowAdminClaims) || (claim.isTown() && !RealEstate.instance.config.allowTownClaims))
 				{
 					Messages.sendMessage(player, RealEstate.instance.messages.msgErrorSignRentingDisabled);
 					event.setCancelled(true);
@@ -278,7 +278,7 @@ public class REListener
 			}
 			else if(RealEstate.instance.config.cfgLeaseKeywords.contains(header.toLowerCase()))// we want to rent it
 			{
-				if(!RealEstate.instance.config.cfgEnableLease)
+				if(!RealEstate.instance.config.cfgEnableLease || (claim.isAdminClaim() && !RealEstate.instance.config.allowAdminClaims) || (claim.isTown() && !RealEstate.instance.config.allowTownClaims))
 				{
 					Messages.sendMessage(player, RealEstate.instance.messages.msgErrorSignLeasingDisabled);
 					event.setCancelled(true);
@@ -425,7 +425,6 @@ public class REListener
 	        }
 
 	        final Location<World> location = sign.getLocation();
-			RealEstate.instance.log.info(header);
 			// it is a real estate sign
 			if(header.equalsIgnoreCase(Messages.getMessage(RealEstate.instance.config.cfgSignsHeader, false)))
 			{

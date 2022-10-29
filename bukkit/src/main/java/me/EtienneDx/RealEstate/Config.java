@@ -99,7 +99,13 @@ public class Config extends AnnotationConfig
     
     @ConfigField(name="RealEstate.Settings.MessagesFiles", comment="Language file to be used. You can see all languages files in the languages directory. If the language file does not exist, it will be created and you'll be able to modify it later on.")
     public String languageFile = "en.yml";
-    
+
+    @ConfigField(name="RealEstate.Settings.AllowAdminClaims", comment = "Allow admin claims to be used by RealEstate.")
+    public boolean allowAdminClaims = false;
+
+    @ConfigField(name="RealEstate.Settings.AllowTownClaims", comment = "Allow town claims to be used by RealEstate.")
+    public boolean allowTownClaims = false;
+
     public Config()
     {
         this.pdf = RealEstate.instance.getDescription();

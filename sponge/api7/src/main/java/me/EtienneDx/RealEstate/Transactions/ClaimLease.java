@@ -17,14 +17,12 @@ import me.EtienneDx.RealEstate.RealEstate;
 import me.EtienneDx.RealEstate.Utils;
 import me.EtienneDx.RealEstate.Events.ClaimLeaseEvent;
 import me.EtienneDx.RealEstate.config.LegacyHexSerializer;
-import com.griefdefender.lib.kyori.adventure.text.format.NamedTextColor;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.tileentity.Sign;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -63,7 +61,7 @@ public class ClaimLease extends BoughtTransaction
 				    return false;
 				}
 				signData.addElement(0, LegacyHexSerializer.toText(Messages.getMessage(RealEstate.instance.config.cfgSignsHeader, false)));
-				signData.addElement(1, LegacyHexSerializer.toText(NamedTextColor.DARK_GREEN + RealEstate.instance.config.cfgReplaceLease));
+				signData.addElement(1, LegacyHexSerializer.toText(Messages.getMessage(RealEstate.instance.config.cfgReplaceLease, false)));
 				if(RealEstate.instance.config.cfgUseCurrencySymbol)
 				{
 					if(RealEstate.instance.config.cfgUseDecimalCurrency == false)

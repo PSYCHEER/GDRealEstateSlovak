@@ -62,6 +62,11 @@ public class GPClaim implements IClaim
     }
 
     @Override
+    public boolean isTownClaim() {
+        return false;
+    }
+
+    @Override
     public Iterable<IClaim> getChildren() {
         return new Iterable<IClaim>() {
             @Override

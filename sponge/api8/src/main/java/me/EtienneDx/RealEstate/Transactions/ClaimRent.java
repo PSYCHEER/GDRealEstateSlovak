@@ -21,7 +21,6 @@ import me.EtienneDx.RealEstate.Utils;
 import me.EtienneDx.RealEstate.Events.ClaimRentEvent;
 import me.EtienneDx.RealEstate.config.LegacyHexSerializer;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.entity.Sign;
 import org.spongepowered.api.data.Keys;
@@ -77,7 +76,7 @@ public class ClaimRent extends BoughtTransaction
 				Sign s = Utils.getSign(sign);
 				final List<Component> signData = new ArrayList<>();
 				signData.add(0, LegacyHexSerializer.deserialize(Messages.getMessage(RealEstate.instance.config.cfgSignsHeader, false)));
-				signData.add(1, LegacyHexSerializer.deserialize(RealEstate.instance.config.cfgReplaceRent).color(NamedTextColor.DARK_GREEN));
+				signData.add(1, LegacyHexSerializer.deserialize(Messages.getMessage(RealEstate.instance.config.cfgReplaceRent, false)));
 				String price_line = "";
 				if(RealEstate.instance.config.cfgUseCurrencySymbol)
 				{
@@ -107,7 +106,7 @@ public class ClaimRent extends BoughtTransaction
 					signData.add(2, LegacyHexSerializer.deserialize(price_line));
 					signData.add(3, LegacyHexSerializer.deserialize(period));
 				} else {
-					signData.add(2, LegacyHexSerializer.deserialize(RealEstate.instance.config.cfgContainerRentLine));
+					signData.add(2, LegacyHexSerializer.deserialize(Messages.getMessage(RealEstate.instance.config.cfgContainerRentLine, false)));
 					signData.add(3, LegacyHexSerializer.deserialize(price_line + " - " + period));
 				}
 				Sponge.server().scheduler().submit(Task.builder().plugin(RealEstate.instance.pluginContainer).delay(Ticks.of(1)).execute(() -> {
@@ -137,7 +136,7 @@ public class ClaimRent extends BoughtTransaction
 			{
 				Sign s = Utils.getSign(sign);
 				final List<Component> signData = new ArrayList<>();
-				signData.add(0, LegacyHexSerializer.deserialize(RealEstate.instance.config.cfgReplaceOngoingRent).color(NamedTextColor.GOLD)); //Changed the header to "[Rented]" so that it won't waste space on the next line and allow the name of the player to show underneath.
+				signData.add(0, LegacyHexSerializer.deserialize(Messages.getMessage(RealEstate.instance.config.cfgReplaceOngoingRent, false))); //Changed the header to "[Rented]" so that it won't waste space on the next line and allow the name of the player to show underneath.
 				String playerName = Utils.getOfflinePlayer(buyer).name();
 				if (playerName == null) {
 				    playerName = "unknown";

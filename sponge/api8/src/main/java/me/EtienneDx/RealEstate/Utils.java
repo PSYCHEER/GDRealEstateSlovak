@@ -28,10 +28,10 @@ import com.griefdefender.api.claim.ClaimResult;
 import com.griefdefender.api.claim.TrustTypes;
 import com.griefdefender.api.data.PlayerData;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SignBlock;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.AbstractSignBlock;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 
 public class Utils
 {
@@ -170,12 +170,12 @@ public class Utils
 	}
 
     public static boolean isBlockSign(BlockType block) {
-        return block instanceof SignBlock;
+        return block instanceof AbstractSignBlock;
     }
 
     public static void dropBlockAsItem(ServerLocation location) {
         final Block nmsBlock = (Block) location.blockType();
-        final net.minecraft.world.level.Level nmsWorld = (net.minecraft.world.level.Level) location.world();
+        final net.minecraft.world.World nmsWorld = (net.minecraft.world.World) location.world();
         final BlockPos pos = toBlockPos(location);
         nmsBlock.dropResources((BlockState) location.block(), nmsWorld, pos);
         location.setBlockType(BlockTypes.AIR.get());

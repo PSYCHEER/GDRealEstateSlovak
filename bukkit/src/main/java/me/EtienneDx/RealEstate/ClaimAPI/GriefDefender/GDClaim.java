@@ -61,6 +61,11 @@ public class GDClaim implements IClaim{
     }
 
     @Override
+    public boolean isTownClaim() {
+        return claim.isTown();
+    }
+
+    @Override
     public Iterable<IClaim> getChildren() {
         return new Iterable<IClaim>() {
             @Override

@@ -44,7 +44,7 @@ public class ClaimSell extends ClaimTransaction
                 return false;
             }
 			signData.addElement(0, LegacyHexSerializer.toText(Messages.getMessage(RealEstate.instance.config.cfgSignsHeader, false)));
-			signData.addElement(1, LegacyHexSerializer.toText(NamedTextColor.DARK_GREEN + RealEstate.instance.config.cfgReplaceSell));
+			signData.addElement(1, LegacyHexSerializer.toText(Messages.getMessage(RealEstate.instance.config.cfgReplaceSell, false)));
 			signData.addElement(2, LegacyHexSerializer.toText(owner != null ? Utils.getSignString(Utils.getOfflinePlayer(owner).getName()) : "SERVER"));
 			if(RealEstate.instance.config.cfgUseCurrencySymbol)
 			{
