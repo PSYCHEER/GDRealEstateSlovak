@@ -53,12 +53,16 @@ public class Config extends AnnotationConfig
     @ConfigField(name="RealEstate.Rules.Lease", comment = "Is leasing claims enabled?")
     public boolean cfgEnableLease = true;
 
-    @ConfigField(name="RealEstate.Rules.AutomaticRenew", comment = "Can players renting claims enable automatic renew of their contracts?")
+    @ConfigField(name="RealEstate.Rules.AutomaticRenew", comment = "Whether rented claims will automatically renew. (Default: True)")
     public boolean cfgEnableAutoRenew = true;
     @ConfigField(name="RealEstate.Rules.DestroySigns.Rent", comment = "Should the rent signs get destroyed once the claim is rented?")
     public boolean cfgDestroyRentSigns = false;
     @ConfigField(name="RealEstate.Rules.DestroySigns.Lease", comment = "Should the lease signs get destroyed once the claim is leased?")
     public boolean cfgDestroyLeaseSigns = true;
+    @ConfigField(name="RealEstate.Rules.Schematics.Lease", comment = "Should schematics be used for leased claims?")
+    public boolean cfgSchematicsLease = true;
+    @ConfigField(name="RealEstate.Rules.Schematics.Rent", comment = "Should schematics be used for rented claims?")
+    public boolean cfgSchematicsRent = true;
 
     @ConfigField(name="RealEstate.Rules.TransferClaimBlocks", comment = "Are the claim blocks transfered to the new owner on purchase or should the buyer provide them?")
     public boolean cfgTransferClaimBlocks = true;
@@ -93,7 +97,19 @@ public class Config extends AnnotationConfig
 
     @ConfigField(name="RealEstate.Default.LeasePaymentsCount", comment = "How many lease periods are required before the buyer gets the claim's ownership by default")
     public int cfgLeasePayments = 5;
-    
+    @ConfigField(name="RealEstate.Default.Limit.Lease.Buyer", comment = "How many claims a player can lease at the same time by default.")
+    public int cfgLimitLeaseBuyer = -1;
+    @ConfigField(name="RealEstate.Default.Limit.Rent.Buyer", comment = "How many claims a player can rent at the same time by default.")
+    public int cfgLimitRentBuyer = -1;
+    @ConfigField(name="RealEstate.Default.Limit.Sell.Buyer", comment = "How many claims a player can purchase in total by default.")
+    public int cfgLimitSellBuyer = -1;
+    @ConfigField(name="RealEstate.Default.Limit.Lease.Owner", comment = "How many claims a player can put up for lease at the same time by default.")
+    public int cfgLimitLeaseOwner = -1;
+    @ConfigField(name="RealEstate.Default.Limit.Rent.Owner", comment = "How many claims a player can put up for rent at the same time by default.")
+    public int cfgLimitRentOwner = -1;
+    @ConfigField(name="RealEstate.Default.Limit.Sell.Owner", comment = "How many claims a player can put up for sale at the same time by default.")
+    public int cfgLimitSellOwner = -1;
+
     @ConfigField(name="RealEstate.Settings.PageSize", comment = "How many Real Estate offer should be shown by page using the '/re list' command")
     public int cfgPageSize = 8;
     

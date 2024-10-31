@@ -43,7 +43,7 @@ public class ClaimSell extends ClaimTransaction
 	@Override
 	public boolean update()
 	{
-	    if(Utils.isBlockSign(sign.blockType()))
+	    if(sign != null && Utils.isBlockSign(sign.blockType()))
 		{
 		    Sign s = Utils.getSign(sign);
 		    final List<Component> signData = new ArrayList<>(Collections.nCopies(4, Component.empty()));

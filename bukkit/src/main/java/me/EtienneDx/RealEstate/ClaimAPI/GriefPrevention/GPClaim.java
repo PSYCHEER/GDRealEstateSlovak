@@ -175,5 +175,33 @@ public class GPClaim implements IClaim
     public void clearManagers() {
         claim.managers.clear();
     }
-    
+
+    @Override
+    public boolean createSnapshot(String name) {
+        return false;
+    }
+
+    @Override
+    public boolean restoreSnapshot(String name) {
+        return false;
+    }
+
+    @Override
+    public boolean createSchematic(String name) {
+        return false;
+    }
+
+    @Override
+    public boolean restoreSchematic(String name) {
+        return false;
+    }
+
+    @Override
+    public boolean deleteSchematic(String name) {
+        return false;
+    }
+
+    @Override
+    public void addPurchasedAttribute() {
+    }
 }

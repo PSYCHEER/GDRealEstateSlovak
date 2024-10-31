@@ -17,6 +17,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.PluginManager;
 
 import me.EtienneDx.RealEstate.ClaimAPI.IClaim;
+import me.EtienneDx.RealEstate.Transactions.ClaimLease;
+import me.EtienneDx.RealEstate.Transactions.ClaimRent;
 import me.EtienneDx.RealEstate.Transactions.Transaction;
 
 public class REListener implements Listener
@@ -141,6 +143,16 @@ public class REListener implements Listener
 					return;
 				}
 
+				// Check for sell limit
+				Integer ownerSellLimit = RealEstate.claimAPI.getOwnerSellLimit(player.getUniqueId());
+				if (ownerSellLimit == null) {
+					ownerSellLimit = RealEstate.instance.config.cfgLimitSellOwner;
+				}
+				if (ownerSellLimit != null && ownerSellLimit > -1 && RealEstate.transactionsStore.getCurrentSellOwnerTransactions(player) + 1 > ownerSellLimit)
+				{
+					Messages.sendMessage(player, Messages.getMessage(RealEstate.instance.messages.msgInfoClaimInfoSellOwnerLimit, String.valueOf(ownerSellLimit)));
+		            return;
+				}
 				// we should be good to sell it now
 				event.setCancelled(true);// need to cancel the event, so we can update the sign elsewhere
 				RealEstate.transactionsStore.sell(claim, claim.isAdminClaim() ? null : player, price, event.getBlock().getLocation());
@@ -227,7 +239,17 @@ public class REListener implements Listener
 					event.getBlock().breakNaturally();
 					return;
 				}
-
+		
+				// Check for rent limit
+				Integer ownerRentLimit = RealEstate.claimAPI.getOwnerRentLimit(player.getUniqueId());
+				if (ownerRentLimit == null) {
+					ownerRentLimit = RealEstate.instance.config.cfgLimitRentOwner;
+				}
+				if (ownerRentLimit != null && ownerRentLimit > -1 && RealEstate.transactionsStore.getCurrentRentOwnerTransactions(player) + 1 > ownerRentLimit)
+				{
+					Messages.sendMessage(player, Messages.getMessage(RealEstate.instance.messages.msgInfoClaimInfoRentOwnerLimit, String.valueOf(ownerRentLimit)));
+		            return;
+				}
 				// all should be good, we can create the rent
 				event.setCancelled(true);
 				RealEstate.transactionsStore.rent(claim, player, price, event.getBlock().getLocation(), duration,
@@ -333,7 +355,17 @@ public class REListener implements Listener
 					return;
 				}
 
-				// all should be good, we can create the rent
+				// Check for lease limit
+				Integer ownerLeaseLimit = RealEstate.claimAPI.getOwnerLeaseLimit(player.getUniqueId());
+				if (ownerLeaseLimit == null) {
+					ownerLeaseLimit = RealEstate.instance.config.cfgLimitLeaseOwner;
+				}
+				if (ownerLeaseLimit != null && ownerLeaseLimit > -1 && RealEstate.transactionsStore.getCurrentLeaseOwnerTransactions(player) + 1 > ownerLeaseLimit)
+				{
+					Messages.sendMessage(player, Messages.getMessage(RealEstate.instance.messages.msgInfoClaimInfoLeaseOwnerLimit, String.valueOf(ownerLeaseLimit)));
+		            return;
+				}
+				// all should be good, we can create the lease
 				event.setCancelled(true);
 				RealEstate.transactionsStore.lease(claim, player, price, event.getBlock().getLocation(), frequency, paymentsCount);
 			}
@@ -424,6 +456,20 @@ public class REListener implements Listener
 					if(!tr.tryCancelTransaction(event.getPlayer()))
 					{
 						event.setCancelled(true);
+					}
+					if (!event.isCancelled()) 
+					{
+						if(claim != null && !claim.isWilderness() && claim.isAdminClaim())
+						{
+							if (tr instanceof ClaimRent)
+							{
+								claim.deleteSchematic("__rent__");
+							}
+							else if (tr instanceof ClaimLease)
+							{
+								claim.deleteSchematic("__lease__");
+							}
+						}
 					}
 				}
 			}

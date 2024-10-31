@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import me.EtienneDx.RealEstate.ClaimAPI.IClaim;
 import me.EtienneDx.RealEstate.ClaimAPI.IClaimAPI;
 import me.EtienneDx.RealEstate.ClaimAPI.IPlayerData;
+import me.EtienneDx.RealEstate.Transactions.Transaction;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 public class GriefPreventionAPI implements IClaimAPI
@@ -38,5 +39,32 @@ public class GriefPreventionAPI implements IClaimAPI
     public void registerEvents() {
         new ClaimPermissionListener().registerEvents();
     }
-    
+
+    public Integer getBuyerLeaseLimit(UUID player) {
+        return null;
+    }
+
+    public Integer getBuyerPurchaseLimit(UUID player) {
+        return null;
+    }
+
+    public Integer getBuyerRentalLimit(UUID player) {
+        return null;
+    }
+
+    public Integer getOwnerLeaseLimit(UUID player) {
+        return null;
+    }
+
+    public Integer getOwnerRentLimit(UUID player) {
+        return null;
+    }
+
+    public Integer getOwnerSellLimit(UUID player) {
+        return null;
+    }
+
+    public Transaction getTransaction(UUID uuid) {
+        return null;
+    }
 }

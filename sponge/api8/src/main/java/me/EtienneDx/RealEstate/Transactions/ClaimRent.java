@@ -71,7 +71,7 @@ public class ClaimRent extends BoughtTransaction
 	{
 		if(buyer == null)
 		{
-			if(Utils.isBlockSign(sign.blockType()))
+			if(sign != null && Utils.isBlockSign(sign.blockType()))
 			{
 				Sign s = Utils.getSign(sign);
 				final List<Component> signData = new ArrayList<>();

@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -229,6 +230,10 @@ public class TransactionsStore
 	{
 		ClaimRent cr = new ClaimRent(claim, claim.isAdminClaim() ? null : player, price, sign, duration, buildTrust);
 		claimRent.put(claim.getId(), cr);
+		claim.createSnapshot("__rent__");
+		if (RealEstate.instance.config.cfgSchematicsRent && claim.isAdminClaim()) {
+		    claim.createSchematic("__rent__");
+		}
 		cr.update();
 		saveData();
 		
@@ -274,6 +279,10 @@ public class TransactionsStore
 	{
 		ClaimLease cl = new ClaimLease(claim, claim.isAdminClaim() ? null : player, price, sign, frequency, paymentsCount);
 		claimLease.put(claim.getId(), cl);
+		claim.createSnapshot("__lease__");
+		if (RealEstate.instance.config.cfgSchematicsLease && claim.isAdminClaim()) {
+				claim.createSchematic("__lease__");
+		}
 		cl.update();
 		saveData();
 		
@@ -324,4 +333,124 @@ public class TransactionsStore
 		IClaim c = RealEstate.claimAPI.getClaimAt(player.getLocation());
 		return getTransaction(c);
 	}
+
+	public int getCurrentRentBuyerTransactions(Player player)
+	{
+		if(player == null) return 0;
+		int count = 0;
+		for (ClaimRent cr : claimRent.values())
+		{
+			if (player.getUniqueId().equals(cr.getBuyer()))
+			{
+				count++;
+			}
+		}
+		return count;
+	}
+
+	public int getCurrentLeaseBuyerTransactions(Player player)
+	{
+		if(player == null) return 0;
+		int count = 0;
+		for (ClaimLease cr : claimLease.values())
+		{
+			if (player.getUniqueId().equals(cr.getBuyer()))
+			{
+				count++;
+			}
+		}
+		return count;
+	}
+
+	public int getCurrentRentOwnerTransactions(Player player)
+	{
+		if(player == null) return 0;
+		int count = 0;
+		for (ClaimRent cr : claimRent.values())
+		{
+			if (player.getUniqueId().equals(cr.getOwner()))
+			{
+				count++;
+			}
+		}
+		return count;
+	}
+
+	public int getCurrentLeaseOwnerTransactions(Player player)
+	{
+		if(player == null) return 0;
+		int count = 0;
+		for (ClaimLease cr : claimLease.values())
+		{
+			if (player.getUniqueId().equals(cr.getOwner()))
+			{
+				count++;
+			}
+		}
+		return count;
+	}
+
+	public int getCurrentSellOwnerTransactions(Player player)
+	{
+		if(player == null) return 0;
+		int count = 0;
+		for (ClaimSell cr : claimSell.values())
+		{
+			if (player.getUniqueId().equals(cr.getOwner()))
+			{
+				count++;
+			}
+		}
+		return count;
+	}
+
+    public boolean isClaimUpForLease(UUID claimUniqueId) {
+    	for (ClaimLease cr : claimLease.values())
+		{
+			if (cr.claimId.equals(claimUniqueId.toString())) {
+				return cr.buyer == null;
+			}
+		}
+    	return false;
+    }
+
+    public boolean isClaimLeased(UUID claimUniqueId) {
+    	for (ClaimLease cr : claimLease.values())
+		{
+			if (cr.claimId.equals(claimUniqueId.toString())) {
+				return cr.buyer != null;
+			}
+		}
+    	return false;
+    }
+
+    public boolean isClaimUpForRent(UUID claimUniqueId) {
+    	for (ClaimRent cr : claimRent.values())
+		{
+			if (cr.claimId.equals(claimUniqueId.toString())) {
+				return cr.buyer == null;
+			}
+		}
+    	return false;
+    }
+
+    public boolean isClaimRented(UUID claimUniqueId) {
+    	for (ClaimRent cr : claimRent.values())
+		{
+			if (cr.claimId.equals(claimUniqueId.toString())) {
+				return cr.buyer != null;
+			}
+		}
+    	return false;
+    }
+
+    public boolean isClaimUpForSale(UUID claimUniqueId) {
+    	for (ClaimSell cr : claimSell.values())
+		{
+			if (cr.claimId.equals(claimUniqueId.toString())) {
+				return true;
+			}
+		}
+    	return false;
+    }
 }

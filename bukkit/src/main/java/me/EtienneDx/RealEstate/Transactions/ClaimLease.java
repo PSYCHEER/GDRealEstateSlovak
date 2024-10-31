@@ -92,7 +92,9 @@ public class ClaimLease extends BoughtTransaction
 					}
 				}
 				s.setLine(3, Utils.getTime(frequency, null, false));
-				s.update(true);
+				Bukkit.getServer().getScheduler().runTaskLater(RealEstate.instance, () -> {
+					s.update(true);
+				}, 1);
 			}
 			else
 			{
@@ -227,12 +229,12 @@ public class ClaimLease extends BoughtTransaction
 	
 	private void exitLease()
 	{
+		IClaim claim = RealEstate.claimAPI.getClaimAt(sign);
 		if(buyer != null)
 		{
 			OfflinePlayer buyerPlayer = Bukkit.getOfflinePlayer(buyer);
 			OfflinePlayer seller = owner == null ? null : Bukkit.getOfflinePlayer(owner);
 			
-			IClaim claim = RealEstate.claimAPI.getClaimAt(sign);
 			
 			String claimType = claim.isParentClaim() ? 
 					RealEstate.instance.messages.keywordClaim :
@@ -275,11 +277,20 @@ public class ClaimLease extends BoughtTransaction
 	    	}
 			
 			claim.removeManager(buyer);
+			claim.restoreSnapshot("__lease__");
+			if (RealEstate.instance.config.cfgSchematicsLease && claim.isAdminClaim()) {
+						claim.restoreSchematic("__lease__");
+			}
 			claim.dropPlayerPermissions(buyer);
 		}
 		else
 		{
 			getHolder().breakNaturally();// the sign should still be there since the lease has netver begun
+			// Only delete schematic when lease sign is broken
+			if(claim != null && claim.isAdminClaim())
+			{
+						claim.deleteSchematic("__lease__");
+			}
 		}
 		RealEstate.transactionsStore.cancelTransaction(this);
 	}
@@ -351,6 +362,15 @@ public class ClaimLease extends BoughtTransaction
             return;
 		}
 		
+		Integer buyerLeaseLimit = RealEstate.claimAPI.getBuyerLeaseLimit(player.getUniqueId());
+		if (buyerLeaseLimit == null) {
+			buyerLeaseLimit = RealEstate.instance.config.cfgLimitLeaseBuyer;
+		}
+		if (buyerLeaseLimit != null && buyerLeaseLimit > -1 && RealEstate.transactionsStore.getCurrentLeaseBuyerTransactions(player) + 1 > buyerLeaseLimit)
+		{
+			Messages.sendMessage(player, Messages.getMessage(RealEstate.instance.messages.msgInfoClaimInfoLeaseBuyerLimit, String.valueOf(buyerLeaseLimit)));
+			return;
+		}
 		if(Utils.makePayment(owner, player.getUniqueId(), price, false, true))// if payment succeed
 		{
 			buyer = player.getUniqueId();

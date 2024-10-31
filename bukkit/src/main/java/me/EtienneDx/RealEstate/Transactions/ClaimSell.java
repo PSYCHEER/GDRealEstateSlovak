@@ -8,6 +8,7 @@ import me.EtienneDx.RealEstate.Messages;
 import me.EtienneDx.RealEstate.RealEstate;
 import me.EtienneDx.RealEstate.Utils;
 import me.EtienneDx.RealEstate.ClaimAPI.IClaim;
+import me.EtienneDx.RealEstate.ClaimAPI.IPlayerData;
 import net.md_5.bungee.api.ChatColor;
 
 import java.util.Map;
@@ -62,7 +63,9 @@ public class ClaimSell extends ClaimTransaction
 					s.setLine(3, price + " " + RealEstate.econ.currencyNamePlural());
 				}
 			}
-			s.update(true);
+			Bukkit.getServer().getScheduler().runTaskLater(RealEstate.instance, () -> {
+				s.update(true);
+			}, 1);
 		}
 		else
 		{
@@ -121,59 +124,63 @@ public class ClaimSell extends ClaimTransaction
 				(area - remaining) + "");
             return;			
 		}
+
+		IPlayerData buyerData = RealEstate.claimAPI.getPlayerData(player.getUniqueId());
+		Integer buyerPurchaseLimit = RealEstate.claimAPI.getBuyerPurchaseLimit(player.getUniqueId());
+		if (buyerPurchaseLimit == null) {
+			buyerPurchaseLimit = RealEstate.instance.config.cfgLimitSellBuyer;
+		}
+		if (buyerPurchaseLimit != null && buyerPurchaseLimit > -1 && buyerData.getTotalPurchasedClaims() + 1 > buyerPurchaseLimit)
+		{
+			Messages.sendMessage(player, Messages.getMessage(RealEstate.instance.messages.msgInfoClaimInfoSellBuyerLimit, String.valueOf(buyerPurchaseLimit)));
+            return;
+		}
+		
 		// the player has the right to buy, let's make the payment
 		
 		if(Utils.makePayment(owner, player.getUniqueId(), price, false, true))// if payment succeed
 		{
 			Utils.transferClaim(claim, player.getUniqueId(), owner);
-			// normally, this is always the case, so it's not necessary, but until I proven my point, here
-			if(claim.isSubClaim() || claim.getOwner().equals(player.getUniqueId()))
-			{
-				String location = "[" + player.getLocation().getWorld() + ", " +
-					"X: " + player.getLocation().getBlockX() + ", " +
-					"Y: " + player.getLocation().getBlockY() + ", " +
-					"Z: " + player.getLocation().getBlockZ() + "]";
+			claim.addPurchasedAttribute();
+			String location = "[" + player.getLocation().getWorld() + ", " +
+				"X: " + player.getLocation().getBlockX() + ", " +
+				"Y: " + player.getLocation().getBlockY() + ", " +
+				"Z: " + player.getLocation().getBlockZ() + "]";
 
-				Messages.sendMessage(player, RealEstate.instance.messages.msgInfoClaimBuyerSold,
-						claimTypeDisplay,
-						RealEstate.econ.format(price));
-						
-                RealEstate.instance.addLogEntry(
-                        "[" + RealEstate.transactionsStore.dateFormat.format(RealEstate.transactionsStore.date) + "] " + player.getName() + 
-                        " has purchased a " + claimType + " at " +
-                                "[" + player.getLocation().getWorld() + ", " +
-                                "X: " + player.getLocation().getBlockX() + ", " +
-                                "Y: " + player.getLocation().getBlockY() + ", " +
-                                "Z: " + player.getLocation().getBlockZ() + "] " +
-                                "Price: " + price + " " + RealEstate.econ.currencyNamePlural());
-                
-                if(RealEstate.instance.config.cfgMessageOwner && owner != null)
-                {
-                	OfflinePlayer oldOwner = Bukkit.getOfflinePlayer(owner);
-                	if(oldOwner.isOnline())
-                	{
-						Messages.sendMessage(oldOwner.getPlayer(), RealEstate.instance.messages.msgInfoClaimOwnerSold,
-								player.getName(),
-								claimTypeDisplay,
-								RealEstate.econ.format(price),
-								location);
-                	}
-                	else if(RealEstate.instance.config.cfgMailOffline && RealEstate.ess != null)
-                	{
-                		User u = RealEstate.ess.getUser(owner);
-						u.addMail(Messages.getMessage(RealEstate.instance.messages.msgInfoClaimOwnerSold,
-								player.getName(),
-								claimTypeDisplay,
-								RealEstate.econ.format(price),
-								location));
-                	}
-                }
+			Messages.sendMessage(player, RealEstate.instance.messages.msgInfoClaimBuyerSold,
+					claimTypeDisplay,
+					RealEstate.econ.format(price));
+					
+			RealEstate.instance.addLogEntry(
+					"[" + RealEstate.transactionsStore.dateFormat.format(RealEstate.transactionsStore.date) + "] " + player.getName() + 
+					" has purchased a " + claimType + " at " +
+							"[" + player.getLocation().getWorld() + ", " +
+							"X: " + player.getLocation().getBlockX() + ", " +
+							"Y: " + player.getLocation().getBlockY() + ", " +
+							"Z: " + player.getLocation().getBlockZ() + "] " +
+							"Price: " + price + " " + RealEstate.econ.currencyNamePlural());
+
+			if(RealEstate.instance.config.cfgMessageOwner && owner != null)
+			{
+				OfflinePlayer oldOwner = Bukkit.getOfflinePlayer(owner);
+				if(oldOwner.isOnline())
+					{
+					Messages.sendMessage(oldOwner.getPlayer(), RealEstate.instance.messages.msgInfoClaimOwnerSold,
+							player.getName(),
+							claimTypeDisplay,
+							RealEstate.econ.format(price),
+							location);
+				}
+				else if(RealEstate.instance.config.cfgMailOffline && RealEstate.ess != null)
+				{
+					User u = RealEstate.ess.getUser(owner);
+					u.addMail(Messages.getMessage(RealEstate.instance.messages.msgInfoClaimOwnerSold,
+							player.getName(),
+							claimTypeDisplay,
+							RealEstate.econ.format(price),
+							location));
+				}
 			}
-            else
-            {
-				Messages.sendMessage(player, RealEstate.instance.messages.msgErrorUnexpected);
-                return;
-            }
 			RealEstate.transactionsStore.cancelTransaction(claim);
 		}
 	}

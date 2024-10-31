@@ -156,11 +156,11 @@ public class RECommand extends BaseCommand
 		ClaimRent cr = (ClaimRent)RealEstate.transactionsStore.getTransaction(claim);
 		String claimType = claim.isParentClaim() ? 
 			RealEstate.instance.messages.keywordClaim : RealEstate.instance.messages.keywordSubclaim;
-		if(!RealEstate.instance.config.cfgEnableAutoRenew)
+		/*if(!RealEstate.instance.config.cfgEnableAutoRenew)
 		{
 			Messages.sendMessage(player, RealEstate.instance.messages.msgErrorAutoRenewDisabled);
 			return;
-		}
+		}*/
 		if(newStatus == null)
 		{
 			Messages.sendMessage(player, RealEstate.instance.messages.msgRenewRentCurrently, cr.autoRenew ? 

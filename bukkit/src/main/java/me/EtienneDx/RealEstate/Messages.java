@@ -378,6 +378,24 @@ public class Messages extends AnnotationConfig
     @ConfigField(name="RealEstate.Info.Claim.Info.Rent.RentCancelled", comment = "0: claim type, 1: location")
     public String msgInfoClaimInfoRentCancelled = "$bThe rent for the {0} at $a{1} $bis now over, your access has been revoked.";
 
+    @ConfigField(name="RealEstate.Info.Claim.Info.Lease.LimitBuyer", comment = "0: limit")
+    public String msgInfoClaimInfoLeaseBuyerLimit = "$cYou cannot lease this claim. You have exceeded the limit of $a{0}$c leases.";
+
+    @ConfigField(name="RealEstate.Info.Claim.Info.Rent.LimitBuyer", comment = "0: limit")
+    public String msgInfoClaimInfoRentBuyerLimit = "$cYou cannot rent this claim. You have exceeded the limit of $a{0}$c rentals.";
+
+    @ConfigField(name="RealEstate.Info.Claim.Info.Sell.LimitBuyer", comment = "0: limit")
+    public String msgInfoClaimInfoSellBuyerLimit = "$cYou cannot buy this claim. You have exceeded the limit of $a{0}$c purchases.";
+
+    @ConfigField(name="RealEstate.Info.Claim.Info.Lease.LimitOwner", comment = "0: limit")
+    public String msgInfoClaimInfoLeaseOwnerLimit = "$cYou cannot put this claim up for lease. You have exceeded the limit of $a{0}$c active leases.";
+
+    @ConfigField(name="RealEstate.Info.Claim.Info.Rent.LimitOwner", comment = "0: limit")
+    public String msgInfoClaimInfoRentOwnerLimit = "$cYou cannot put this claim up for rent. You have exceeded the limit of $a{0}$c active rentals.";
+
+    @ConfigField(name="RealEstate.Info.Claim.Info.Sell.LimitOwner", comment = "0: limit")
+    public String msgInfoClaimInfoSellOwnerLimit = "$cYou cannot put this claim up for sale. You have exceeded the limit of $a{0}$c active sales.";
+
     @ConfigField(name="RealEstate.Info.Claim.Info.Sell.Header")
     public String msgInfoClaimInfoSellHeader = "$9-----= $f[$6RealEstate Sale Info$f]$9 =-----";
 

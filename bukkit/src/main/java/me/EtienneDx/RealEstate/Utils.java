@@ -88,6 +88,28 @@ public class Utils
 	
 	public static void transferClaim(IClaim claim, UUID buyer, UUID seller)
 	{
+        try
+        {
+            RealEstate.claimAPI.changeClaimOwner(claim, buyer);
+        }
+        catch (Exception e)// error occurs when trying to change subclaim owner
+        {
+            return;
+        }
+        // start to change owner
+        if(claim.isParentClaim())
+        {
+            for(IClaim child : claim.getChildren())
+            {
+                if (seller.equals(child.getOwner())) {
+                    child.clearPlayerPermissions();
+                    child.clearManagers();
+                    RealEstate.claimAPI.changeClaimOwner(child, buyer);
+                }
+            }
+        }
+        claim.clearPlayerPermissions();
+
 		// blocks transfer :
 		// if transfert is true, the seller will lose the blocks he had
 		// and the buyer will get them
@@ -112,31 +134,7 @@ public class Utils
 			buyerData.setBonusClaimBlocks(buyerData.getBonusClaimBlocks() + claim.getArea());
 		}
 		
-		// start to change owner
-		if(claim.isParentClaim())
-		{
-			for(IClaim child : claim.getChildren())
-			{
-				child.clearPlayerPermissions();
-				child.clearManagers();
-			}
-		}
-		claim.clearPlayerPermissions();
-		
-		try
-		{
-			if(claim.isParentClaim())
-				RealEstate.claimAPI.changeClaimOwner(claim, buyer);
-			else
-			{
-				claim.addPlayerPermissions(buyer, ClaimPermission.BUILD);
-			}
-		}
-		catch (Exception e)// error occurs when trying to change subclaim owner
-		{
-			e.printStackTrace();
-			return;
-		}
+
 		RealEstate.claimAPI.saveClaim(claim);
 					
 	}

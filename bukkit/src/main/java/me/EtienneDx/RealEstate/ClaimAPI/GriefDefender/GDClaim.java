@@ -3,7 +3,11 @@ package me.EtienneDx.RealEstate.ClaimAPI.GriefDefender;
 import java.util.Iterator;
 import java.util.UUID;
 
+import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.claim.Claim;
+import com.griefdefender.api.claim.ClaimAttribute;
+import com.griefdefender.api.claim.ClaimSchematic;
+import com.griefdefender.api.claim.ClaimSnapshot;
 import com.griefdefender.api.claim.TrustType;
 import com.griefdefender.api.claim.TrustTypes;
 
@@ -14,6 +18,8 @@ import me.EtienneDx.RealEstate.ClaimAPI.ClaimPermission;
 import me.EtienneDx.RealEstate.ClaimAPI.IClaim;
 
 public class GDClaim implements IClaim{
+
+    private static final ClaimAttribute ATTRIBUTE_CLAIM_PURCHASED = ClaimAttribute.builder().name("claim_purchased").id("realestate:claim_purchased").build();
 
     private Claim claim;
 
@@ -175,5 +181,55 @@ public class GDClaim implements IClaim{
     public void setInheritPermissions(boolean inherit) {
         claim.getData().setInheritParent(inherit);
     }
-    
+
+    @Override
+    public boolean createSnapshot(String name) {
+        final ClaimSnapshot snapshot = claim.createSnapshot(name, false);
+        return snapshot != null;
+    }
+
+    @Override
+    public boolean restoreSnapshot(String name) {
+        final ClaimSnapshot snapshot = claim.getSnapshots().get(name);
+        if (snapshot != null) {
+            return snapshot.apply(claim);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean createSchematic(String name) {
+        if (!this.claim.isAdminClaim() || GriefDefender.getCore().getWorldEditProvider() == null) {
+            return false;
+        }
+        final ClaimSchematic schematic = ClaimSchematic.builder().claim(this.claim).name(name).build();
+        return schematic != null;
+    }
+
+    @Override
+    public boolean restoreSchematic(String name) {
+        if (!this.claim.isAdminClaim() || GriefDefender.getCore().getWorldEditProvider() == null) {
+            return false;
+        }
+        final ClaimSchematic schematic = this.claim.getSchematics().get(name);
+        if (schematic != null) {
+            schematic.apply();
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean deleteSchematic(String name) {
+        if (!this.claim.isAdminClaim() || GriefDefender.getCore().getWorldEditProvider() == null) {
+            return false;
+        }
+
+        return this.claim.deleteSchematic(name);
+    }
+
+    @Override
+    public void addPurchasedAttribute() {
+        this.claim.addAttribute(ATTRIBUTE_CLAIM_PURCHASED);
+    }
 }

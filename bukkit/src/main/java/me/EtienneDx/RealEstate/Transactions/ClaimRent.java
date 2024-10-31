@@ -26,8 +26,8 @@ import net.md_5.bungee.api.ChatColor;
 public class ClaimRent extends BoughtTransaction
 {
 	LocalDateTime startDate = null;
-	int duration;
-	public boolean autoRenew = false;
+	public int duration;
+	public boolean autoRenew = true;
 	public boolean buildTrust = true;
 	
 	public ClaimRent(Map<String, Object> map)
@@ -50,6 +50,7 @@ public class ClaimRent extends BoughtTransaction
 		super(claim, player, price, sign);
 		this.duration = duration;
 		this.buildTrust = buildTrust;
+		this.autoRenew = RealEstate.instance.config.cfgEnableAutoRenew;
 	}
 
 	@Override
@@ -108,7 +109,9 @@ public class ClaimRent extends BoughtTransaction
 					s.setLine(2, RealEstate.instance.config.cfgContainerRentLine);
 					s.setLine(3, price_line + " - " + period);
 				}
-				s.update(true);
+				Bukkit.getServer().getScheduler().runTaskLater(RealEstate.instance, () -> {
+					s.update(true);
+				}, 1);
 			}
 			else
 			{
@@ -140,7 +143,9 @@ public class ClaimRent extends BoughtTransaction
 				Duration timeRemaining = Duration.ofHours(24).minus(hours);
 				
 				s.setLine(3, Utils.getTime(daysLeft, timeRemaining, false));
-				s.update(true);
+				Bukkit.getServer().getScheduler().runTaskLater(RealEstate.instance, () -> {
+					s.update(true);
+				}, 1);
 			}
 		}
 		return false;
@@ -151,6 +156,10 @@ public class ClaimRent extends BoughtTransaction
 	{
 		IClaim claim = RealEstate.claimAPI.getClaimAt(sign);
 		claim.dropPlayerPermissions(buyer);
+		claim.restoreSnapshot("__rent__");
+		if (RealEstate.instance.config.cfgSchematicsRent && claim.isAdminClaim()) {
+		    claim.restoreSchematic("__rent__");
+		}
 		claim.removeManager(buyer);
 		claim.setInheritPermissions(true);
 		RealEstate.claimAPI.saveClaim(claim);
@@ -257,17 +266,16 @@ public class ClaimRent extends BoughtTransaction
 	@Override
 	public boolean tryCancelTransaction(Player p, boolean force)
 	{
+		IClaim claim = RealEstate.claimAPI.getClaimAt(sign);
 		if(buyer != null)
 		{
 			if(p.hasPermission("realestate.admin") && force == true)
 			{
 				this.unRent(true);
-				RealEstate.transactionsStore.cancelTransaction(this);
 				return true;
 			}
 			else
 			{
-				IClaim claim = RealEstate.claimAPI.getClaimAt(sign);
 				if(p != null) {
 					Messages.sendMessage(p, RealEstate.instance.messages.msgErrorCantCancelAlreadyRented,
 						claim.isParentClaim() ?
@@ -281,6 +289,10 @@ public class ClaimRent extends BoughtTransaction
 		else
 		{
 			RealEstate.transactionsStore.cancelTransaction(this);
+			if(claim != null && claim.isAdminClaim())
+			{
+						claim.deleteSchematic("__rent__");
+			}
 			return true;
 		}
 	}
@@ -321,11 +333,20 @@ public class ClaimRent extends BoughtTransaction
             return;
 		}
 		
+		Integer buyerRentalLimit = RealEstate.claimAPI.getBuyerRentalLimit(player.getUniqueId());
+		if (buyerRentalLimit == null) {
+			buyerRentalLimit = RealEstate.instance.config.cfgLimitRentBuyer;
+		}
+		if (buyerRentalLimit != null && buyerRentalLimit > -1 && RealEstate.transactionsStore.getCurrentRentBuyerTransactions(player) + 1 > buyerRentalLimit)
+		{
+			Messages.sendMessage(player, Messages.getMessage(RealEstate.instance.messages.msgInfoClaimInfoRentBuyerLimit, String.valueOf(buyerRentalLimit)));
+            return;
+		}
+
 		if(Utils.makePayment(owner, player.getUniqueId(), price, false, true))// if payment succeed
 		{
 			buyer = player.getUniqueId();
 			startDate = LocalDateTime.now();
-			autoRenew = false;
 			claim.addPlayerPermissions(buyer, buildTrust ? ClaimPermission.BUILD : ClaimPermission.CONTAINER);
 			claim.addPlayerPermissions(player.getUniqueId(), ClaimPermission.MANAGE);
 			claim.addManager(player.getUniqueId());

@@ -36,5 +36,9 @@ public class GPPlayerData implements IPlayerData
     public int getRemainingClaimBlocks() {
         return playerData.getRemainingClaimBlocks();
     }
-    
+
+    @Override
+    public int getTotalPurchasedClaims() {
+        return 0;
+    }
 }

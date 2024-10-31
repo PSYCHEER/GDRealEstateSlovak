@@ -57,11 +57,11 @@ public class RealEstate
             .defaultNamingScheme(NamingSchemes.PASSTHROUGH)
             .addNodeResolver(new RealEstateNodeResolver()).build();
 
-    public static final String MOD_ID = "RealEstate";
+    public static final String MOD_ID = "realestate";
 
 	public Messages messages;
 	SpongeCommandManager manager;
-	public final static String pluginDirPath = "config" + File.separator + "RealEstate" + File.separator;
+	public final static String pluginDirPath = "config" + File.separator + MOD_ID + File.separator;
 	final static String languagesDirectory = RealEstate.pluginDirPath + "languages";
     public static EconomyService econ = null;
     public static PermissionService perms = null;

@@ -21,8 +21,9 @@ public abstract class BoughtTransaction extends ClaimTransaction
 		super(map);
 		if(map.get("buyer") != null)
 			buyer = UUID.fromString((String)map.get("buyer"));
-		if(map.get("exitOffer") != null)
-			exitOffer = (ExitOffer) map.get("exitOffer");
+		if(map.get("exitOffer_offerBy") != null && map.get("exitOffer_price") != null) {
+		    exitOffer = new ExitOffer(map);
+                }
 		if(map.get("destroyedSign") != null)// may be the case on upgrading from 0.0.1-SNAPSHOT
 			destroyedSign = (boolean) map.get("destroyedSign");
 	}

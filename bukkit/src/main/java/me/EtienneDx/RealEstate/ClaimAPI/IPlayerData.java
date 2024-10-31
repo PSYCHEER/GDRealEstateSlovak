@@ -11,4 +11,6 @@ public interface IPlayerData
     public void setBonusClaimBlocks(int bonusClaimBlocks);
 
     public int getRemainingClaimBlocks();
+
+    public int getTotalPurchasedClaims();
 }

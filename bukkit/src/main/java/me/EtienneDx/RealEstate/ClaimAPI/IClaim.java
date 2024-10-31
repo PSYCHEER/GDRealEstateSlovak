@@ -49,4 +49,16 @@ public interface IClaim
     public String getOwnerName();
 
     public void setInheritPermissions(boolean inherit);
+
+    public boolean createSnapshot(String name);
+
+    public boolean restoreSnapshot(String name);
+
+    public boolean createSchematic(String name);
+
+    public boolean restoreSchematic(String name);
+
+    public boolean deleteSchematic(String name);
+
+    public void addPurchasedAttribute();
 }
