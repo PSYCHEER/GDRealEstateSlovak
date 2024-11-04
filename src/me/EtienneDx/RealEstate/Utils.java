@@ -70,21 +70,37 @@ public class Utils
 	public static String getTime(int days, Duration hours, boolean details)
 	{
 		String time = "";
-		if(days >= 7)
+		if(days == 7)
 		{
-			time += (days / 7) + " week" + (days >= 14 ? "s" : "");
+			time += (days / 7) + " týždeň";
 		}
-		if(days % 7 > 0)
+		if(days > 7)
 		{
-			time += (time.isEmpty() ? "" : " ") + (days % 7) + " day" + (days % 7 > 1 ? "s" : "");
+			time += (days / 7) + " týždne";
+		}
+		if(days > 35)
+		{
+			time += (days / 7) + " týždňov";
+		}
+		if(days % 7 > 0 && days % 7 < 0.15)
+		{
+			time += (time.isEmpty() ? "" : " ") + (days % 7) + " deň";
+		}
+		if(days % 7 > 0.12 && days % 7 < 0.70)
+		{
+			time += (time.isEmpty() ? "" : " ") + (days % 7) + " deň";
+		}
+		if(days % 7 > 0.70)
+		{
+			time += (time.isEmpty() ? "" : " ") + (days % 7) + " dní";
 		}
 		if((details || days < 7) && hours != null && hours.toHours() > 0)
 		{
-			time += (time.isEmpty() ? "" : " ") + hours.toHours() + " hour" + (hours.toHours() > 1 ? "s" : "");
+			time += (time.isEmpty() ? "" : " ") + hours.toHours() + " hod." + (hours.toHours() > 1 ? "" : "");
 		}
 		if((details || days == 0) && hours != null && (time.isEmpty() || hours.toMinutes() % 60 > 0))
 		{
-			time += (time.isEmpty() ? "" : " ") + (hours.toMinutes() % 60) + " min" + (hours.toMinutes() % 60 > 1 ? "s" : "");
+			time += (time.isEmpty() ? "" : " ") + (hours.toMinutes() % 60) + " min." + (hours.toMinutes() % 60 > 1 ? "" : "");
 		}
 		
 		return time;
